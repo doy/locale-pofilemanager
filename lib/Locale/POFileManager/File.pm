@@ -38,6 +38,13 @@ sub save {
     Locale::PO->save_file_fromarray($self->file->stringify, [$self->entries]);
 }
 
+sub language {
+    my $self = shift;
+    my $language = $self->file->basename;
+    $language =~ s{(.*)\.po$}{$1};
+    return $language;
+}
+
 sub find_missing_from {
     my $self = shift;
     my ($other) = @_;

@@ -68,8 +68,7 @@ sub has_language {
     my ($lang) = @_;
 
     for my $file ($self->files) {
-        $file->stringify =~ m{.*/(.*)\.po};
-        return 1 if $1 eq $lang;
+        return 1 if $file->language eq $lang;
     }
 
     return;
@@ -96,7 +95,7 @@ sub canonical_language_file {
     my $lang = $self->canonical_language;
 
     return $self->first_file(sub {
-        $_->file->stringify =~ /\Q$lang\E\.po$/;
+        $_->file->language eq $lang;
     });
 }
 
@@ -106,7 +105,7 @@ sub find_missing {
 
     my %ret;
     for my $file ($self->files) {
-        $ret{$file->file->stringify} = $file->find_missing_from($canon_file);
+        $ret{$file->language} = $file->find_missing_from($canon_file);
     }
 
     return %ret;
