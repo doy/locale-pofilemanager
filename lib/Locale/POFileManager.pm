@@ -42,7 +42,7 @@ sub _build_files {
 
     my @files;
     for my $file ($dir->children) {
-        next unless $file->is_file;
+        next if     $file->is_dir;
         next unless $file->stringify =~ /\.po$/;
         push @files, Locale::POFileManager::File->new(file => $file);
     }
@@ -95,7 +95,7 @@ sub canonical_language_file {
     my $lang = $self->canonical_language;
 
     return $self->first_file(sub {
-        $_->file->language eq $lang;
+        $_->language eq $lang;
     });
 }
 
@@ -105,7 +105,7 @@ sub find_missing {
 
     my %ret;
     for my $file ($self->files) {
-        $ret{$file->language} = $file->find_missing_from($canon_file);
+        $ret{$file->language} = [$file->find_missing_from($canon_file)];
     }
 
     return %ret;
