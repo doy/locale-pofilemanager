@@ -21,7 +21,7 @@ has entries => (
     handles  => {
         entries   => 'elements',
         add_entry => 'push',
-        msgids    => [ map => sub { $_->msgid } ],
+        msgids    => [ map => sub { my $m = $_->msgid; $m =~ s/^"|"$//g; $m } ],
     },
 );
 
