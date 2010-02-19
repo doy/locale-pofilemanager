@@ -1,0 +1,22 @@
+#!/usr/bin/env perl
+use strict;
+use warnings;
+
+use Locale::POFileManager;
+
+my ($dir, $lang) = @ARGV;
+$dir  ||= '.';
+$lang ||= 'en';
+
+my $manager = Locale::POFileManager->new(
+    base_dir           => $dir,
+    canonical_language => $lang,
+);
+
+my %missing = $manager->find_missing;
+for my $lang (keys %missing) {
+    if (@{ $missing{$lang} }) {
+        print "$lang:\n";
+        print for map { "  $_\n" } @{ $missing{$lang} };
+    }
+}
