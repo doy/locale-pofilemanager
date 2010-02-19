@@ -7,6 +7,45 @@ use List::Util qw(first);
 use Locale::PO;
 use Scalar::Util qw(reftype);
 
+=head1 NAME
+
+Locale::POFileManager::File - A single .po file
+
+=head1 SYNOPSIS
+
+  use Locale::POFileManager;
+
+  my $manager = Locale::POFileManager->new(
+      base_dir           => '/path/to/app/i18n/po',
+      canonical_language => 'en',
+  );
+  my $file = $manager->language_file('de');
+
+  $file->add_entry(
+      msgid  => 'Hello',
+      msgstr => 'Guten Tag'
+  );
+  my @entries = $file->entries;
+  my $entry = $file->entry_for('Hello');
+  $file->save;
+
+=head1 DESCRIPTION
+
+This module represents a single translation file, providing methods for
+manipulating the translation entries in it.
+
+=cut
+
+=head1 METHODS
+
+=head2 new
+
+=cut
+
+=head2 file
+
+=cut
+
 has file => (
     is       => 'ro',
     isa      => File,
@@ -14,10 +53,26 @@ has file => (
     required => 1,
 );
 
+=head2 stub_msgstr
+
+=cut
+
 has stub_msgstr => (
     is       => 'ro',
     isa      => 'Str|CodeRef',
 );
+
+=head2 entries
+
+=cut
+
+=head2 add_entry
+
+=cut
+
+=head2 msgids
+
+=cut
 
 has entries => (
     traits   => [qw(Array)],
@@ -52,11 +107,19 @@ sub add_entry {
     }
 }
 
+=head2 entry_for
+
+=cut
+
 sub entry_for {
     my $self = shift;
     my ($msgid) = @_;
     return first { $_->msgid eq '"' . $msgid . '"' } $self->entries;
 }
+
+=head2 save
+
+=cut
 
 sub save {
     my $self = shift;
@@ -64,12 +127,20 @@ sub save {
     Locale::PO->save_file_fromarray($self->file->stringify, [$self->entries]);
 }
 
+=head2 language
+
+=cut
+
 sub language {
     my $self = shift;
     my $language = $self->file->basename;
     $language =~ s{(.*)\.po$}{$1};
     return $language;
 }
+
+=head2 find_missing_from
+
+=cut
 
 sub find_missing_from {
     my $self = shift;
@@ -84,6 +155,10 @@ sub find_missing_from {
 
     return @ret;
 }
+
+=head2 add_stubs_from
+
+=cut
 
 sub add_stubs_from {
     my $self = shift;
@@ -105,5 +180,18 @@ sub add_stubs_from {
 
 __PACKAGE__->meta->make_immutable;
 no Moose;
+
+=head1 AUTHOR
+
+  Jesse Luehrs <doy at tozt dot net>
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2010 by Jesse Luehrs.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as perl itself.
+
+=cut
 
 1;

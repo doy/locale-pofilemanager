@@ -5,13 +5,37 @@ use Scalar::Util qw(reftype weaken);
 
 =head1 NAME
 
-Locale::POFileManager -
+Locale::POFileManager - Helpers for keeping a set of related .po files in sync
 
 =head1 SYNOPSIS
 
+  use Locale::POFileManager;
+
+  my $manager = Locale::POFileManager->new(
+      base_dir           => '/path/to/app/i18n/po',
+      canonical_language => 'en',
+  );
+
+  my %missing = $manager->find_missing;
+  $manager->add_stubs;
+  $manager->add_language('de');
 
 =head1 DESCRIPTION
 
+This module contains helpers for managing a set of gettext translation files,
+including tools to keep the translation files in sync, adding new translation
+files, and manipulating the translations contained in the files. It is based on
+the L<Locale::PO> parser library.
+
+=cut
+
+=head1 METHODS
+
+=head2 new
+
+=cut
+
+=head2 base_dir
 
 =cut
 
@@ -21,6 +45,10 @@ has base_dir => (
     required => 1,
     coerce   => 1,
 );
+
+=head2 files
+
+=cut
 
 has files => (
     traits     => [qw(Array)],
@@ -55,6 +83,10 @@ sub _build_files {
     return \@files;
 }
 
+=head2 canonical_language
+
+=cut
+
 has canonical_language => (
     is       => 'ro',
     isa      => 'Str',
@@ -73,6 +105,10 @@ sub BUILD {
     confess("Canonical language file must exist")
         unless $self->has_language($self->canonical_language);
 }
+
+=head2 stub_msgstr
+
+=cut
 
 sub stub_msgstr {
     my $self = shift;
@@ -95,6 +131,10 @@ sub stub_msgstr {
     }
 }
 
+=head2 has_language
+
+=cut
+
 sub has_language {
     my $self = shift;
     my ($lang) = @_;
@@ -105,6 +145,10 @@ sub has_language {
 
     return;
 }
+
+=head2 add_language
+
+=cut
 
 sub add_language {
     my $self = shift;
@@ -127,6 +171,10 @@ sub add_language {
     $self->_add_file($pofile);
 }
 
+=head2 language_file
+
+=cut
+
 sub language_file {
     my $self = shift;
     my ($lang) = @_;
@@ -136,10 +184,18 @@ sub language_file {
     });
 }
 
+=head2 canonical_language_file
+
+=cut
+
 sub canonical_language_file {
     my $self = shift;
     return $self->language_file($self->canonical_language);
 }
+
+=head2 find_missing
+
+=cut
 
 sub find_missing {
     my $self = shift;
@@ -152,6 +208,10 @@ sub find_missing {
 
     return %ret;
 }
+
+=head2 add_stubs
+
+=cut
 
 sub add_stubs {
     my $self = shift;
@@ -175,6 +235,9 @@ L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Locale-POFileManager>.
 
 =head1 SEE ALSO
 
+L<Locale::PO>
+
+L<Locale::Maketext>
 
 =head1 SUPPORT
 
@@ -210,7 +273,7 @@ L<http://search.cpan.org/dist/Locale-POFileManager>
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is copyright (c) 2009 by Jesse Luehrs.
+This software is copyright (c) 2010 by Jesse Luehrs.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as perl itself.
