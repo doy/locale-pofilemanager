@@ -126,13 +126,18 @@ sub add_language {
     $self->_add_file($pofile);
 }
 
-sub canonical_language_file {
+sub language_file {
     my $self = shift;
-    my $lang = $self->canonical_language;
+    my ($lang) = @_;
 
     return $self->first_file(sub {
         $_->language eq $lang;
     });
+}
+
+sub canonical_language_file {
+    my $self = shift;
+    return $self->language_file($self->canonical_language);
 }
 
 sub find_missing {
