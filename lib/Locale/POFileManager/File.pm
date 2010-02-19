@@ -3,6 +3,7 @@ use Moose;
 
 use MooseX::Types::Path::Class qw(File);
 use List::MoreUtils qw(any);
+use List::Util qw(first);
 use Locale::PO;
 use Scalar::Util qw(reftype);
 
@@ -42,7 +43,7 @@ sub _build_entries {
 sub entry_for {
     my $self = shift;
     my ($msgid) = @_;
-    return grep { $_->msgid eq $msgid } $self->entries;
+    return first { $_->msgid eq '"' . $msgid . '"' } $self->entries;
 }
 
 sub add_entry {
