@@ -40,12 +40,6 @@ sub _build_entries {
     return (-r $filename) ? Locale::PO->load_file_asarray($filename) : [];
 }
 
-sub entry_for {
-    my $self = shift;
-    my ($msgid) = @_;
-    return first { $_->msgid eq '"' . $msgid . '"' } $self->entries;
-}
-
 sub add_entry {
     my $self = shift;
     if (@_ == 1) {
@@ -56,6 +50,12 @@ sub add_entry {
         $args{"-$_"} = delete $args{$_} for keys %args;
         $self->_add_entry(Locale::PO->new(%args));
     }
+}
+
+sub entry_for {
+    my $self = shift;
+    my ($msgid) = @_;
+    return first { $_->msgid eq '"' . $msgid . '"' } $self->entries;
 }
 
 sub save {

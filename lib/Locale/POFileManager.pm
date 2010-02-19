@@ -29,9 +29,9 @@ has files => (
     builder    => '_build_files',
     init_arg   => undef,
     handles    => {
-        files      => 'elements',
-        first_file => 'first',
-        _add_file  => 'push',
+        files       => 'elements',
+        _first_file => 'first',
+        _add_file   => 'push',
     },
 );
 
@@ -131,7 +131,7 @@ sub language_file {
     my $self = shift;
     my ($lang) = @_;
 
-    return $self->first_file(sub {
+    return $self->_first_file(sub {
         $_->language eq $lang;
     });
 }
