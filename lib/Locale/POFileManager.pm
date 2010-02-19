@@ -121,6 +121,7 @@ sub add_language {
         file => $file,
         defined($msgstr) ? (stub_msgstr => $msgstr) : (),
     );
+    $pofile->add_entry($self->canonical_language_file->entry_for(''));
     $pofile->save;
 
     $self->_add_file($pofile);
