@@ -25,9 +25,10 @@ has entries => (
     builder  => '_build_entries',
     init_arg => undef,
     handles  => {
-        entries   => 'elements',
-        add_entry => 'push',
-        msgids    => [ map => sub { my $m = $_->msgid; $m =~ s/^"|"$//g; $m } ],
+        entries    => 'elements',
+        _add_entry => 'push',
+        msgids     =>
+            [ map => sub { my $m = $_->msgid; $m =~ s/^"|"$//g; $m } ],
     },
 );
 
@@ -42,6 +43,18 @@ sub entry_for {
     my $self = shift;
     my ($msgid) = @_;
     return grep { $_->msgid eq $msgid } $self->entries;
+}
+
+sub add_entry {
+    my $self = shift;
+    if (@_ == 1) {
+        $self->_add_entry($_[0]);
+    }
+    else {
+        my %args = @_;
+        $args{"-$_"} = delete $args{$_} for keys %args;
+        $self->_add_entry(Locale::PO->new(%args));
+    }
 }
 
 sub save {
@@ -80,11 +93,10 @@ sub add_stubs_from {
         if (reftype($msgstr) && reftype($msgstr) eq 'CODE') {
             $msgstr = $msgstr->(lang => $self->language, msgid => $missing);
         }
-        my $entry = Locale::PO->new(
-            -msgid => $missing,
-            defined($msgstr) ? (-msgstr => $msgstr) : (),
+        $self->add_entry(
+            msgid => $missing,
+            defined($msgstr) ? (msgstr => $msgstr) : (),
         );
-        $self->add_entry($entry);
     }
 
     $self->save;
