@@ -1,6 +1,7 @@
 package Locale::POFileManager;
 use Moose;
 use MooseX::Types::Path::Class qw(Dir);
+use Scalar::Util qw(reftype weaken);
 
 =head1 NAME
 
@@ -44,7 +45,11 @@ sub _build_files {
     for my $file ($dir->children) {
         next if     $file->is_dir;
         next unless $file->stringify =~ /\.po$/;
-        push @files, Locale::POFileManager::File->new(file => $file);
+        my $msgstr = $self->stub_msgstr;
+        push @files, Locale::POFileManager::File->new(
+            file  => $file,
+            defined($msgstr) ? (stub_msgstr => $msgstr) : (),
+        );
     }
 
     return \@files;
@@ -56,11 +61,38 @@ has canonical_language => (
     required => 1, # TODO: make this not required at some point?
 );
 
+has _stub_msgstr => (
+    is       => 'ro',
+    isa      => 'Str|CodeRef',
+    init_arg => 'stub_msgstr',
+);
+
 sub BUILD {
     my $self = shift;
 
     confess("Canonical language file must exist")
         unless $self->has_language($self->canonical_language);
+}
+
+sub stub_msgstr {
+    my $self = shift;
+    my $msgstr = $self->_stub_msgstr;
+    return unless defined($msgstr);
+    return $msgstr if !reftype($msgstr);
+    my $weakself = $self;
+    weaken($weakself);
+    return sub {
+        my %args = @_;
+        my $canonical_msgstr;
+        $canonical_msgstr =
+            $weakself->canonical_language_file->entry_for($args{msgid})->msgstr
+                if $weakself;
+        $canonical_msgstr =~ s/^"|"$//g if defined($canonical_msgstr);
+        return $msgstr->(
+            %args,
+            defined($canonical_msgstr) ? (canonical_msgstr => $canonical_msgstr) : (),
+        );
+    }
 }
 
 sub has_language {
@@ -84,7 +116,11 @@ sub add_language {
     confess("Can't overwrite existing language file for $lang")
         if -e $file->stringify;
 
-    my $pofile = Locale::POFileManager::File->new(file => $file);
+    my $msgstr = $self->stub_msgstr;
+    my $pofile = Locale::POFileManager::File->new(
+        file => $file,
+        defined($msgstr) ? (stub_msgstr => $msgstr) : (),
+    );
     $pofile->save;
 
     $self->_add_file($pofile);

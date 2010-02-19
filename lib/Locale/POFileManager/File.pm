@@ -4,12 +4,18 @@ use Moose;
 use MooseX::Types::Path::Class qw(File);
 use List::MoreUtils qw(any);
 use Locale::PO;
+use Scalar::Util qw(reftype);
 
 has file => (
     is       => 'ro',
     isa      => File,
     coerce   => 1,
     required => 1,
+);
+
+has stub_msgstr => (
+    is       => 'ro',
+    isa      => 'Str|CodeRef',
 );
 
 has entries => (
@@ -30,6 +36,12 @@ sub _build_entries {
     my $filename = $self->file->stringify;
 
     return (-r $filename) ? Locale::PO->load_file_asarray($filename) : [];
+}
+
+sub entry_for {
+    my $self = shift;
+    my ($msgid) = @_;
+    return grep { $_->msgid eq $msgid } $self->entries;
 }
 
 sub save {
@@ -63,8 +75,18 @@ sub add_stubs_from {
     my $self = shift;
     my ($other) = @_;
 
-    $self->add_entry($_) for map { Locale::PO->new(-msgid => $_) }
-                                 $self->find_missing_from($other);
+    for my $missing ($self->find_missing_from($other)) {
+        my $msgstr = $self->stub_msgstr;
+        if (reftype($msgstr) && reftype($msgstr) eq 'CODE') {
+            $msgstr = $msgstr->(lang => $self->language, msgid => $missing);
+        }
+        my $entry = Locale::PO->new(
+            -msgid => $missing,
+            defined($msgstr) ? (-msgstr => $msgstr) : (),
+        );
+        $self->add_entry($entry);
+    }
+
     $self->save;
 }
 
