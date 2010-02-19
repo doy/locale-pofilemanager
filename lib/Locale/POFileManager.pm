@@ -33,9 +33,33 @@ the L<Locale::PO> parser library.
 
 =head2 new
 
+Accepts a hash of arguments:
+
+=over 4
+
+=item base_dir
+
+The directory that contains the .po files. Required.
+
+=item canonical_language
+
+The language for the file that contains the canonical set of msgids. Required.
+
+=item stub_msgstr
+
+The msgstr to insert when adding stubs to language files. This can be either a
+literal string, or a coderef which accepts a hash containing the keys C<msgid>,
+C<lang>, and C<canonical_msgstr> (the msgstr value from the
+C<canonical_language>. Optional.
+
+=back
+
 =cut
 
 =head2 base_dir
+
+Returns a L<Path::Class::Dir> object corresponding to the C<base_dir> passed to
+the constructor.
 
 =cut
 
@@ -47,6 +71,9 @@ has base_dir => (
 );
 
 =head2 files
+
+Returns a list of L<Locale::POFileManager::File> objects corresponding to the
+.po files that were found in the C<base_dir>.
 
 =cut
 
@@ -85,6 +112,8 @@ sub _build_files {
 
 =head2 canonical_language
 
+Returns the canonical language id passed to the constructor.
+
 =cut
 
 has canonical_language => (
@@ -107,6 +136,10 @@ sub BUILD {
 }
 
 =head2 stub_msgstr
+
+Returns the string passed to the constructor as C<stub_msgstr> if it was a
+string, or a coderef wrapped to supply the C<canonical_msgstr> option if it was
+a coderef.
 
 =cut
 
@@ -133,6 +166,9 @@ sub stub_msgstr {
 
 =head2 has_language
 
+Returns true if a language file exists for the given language in the
+C<base_dir>, false otherwise.
+
 =cut
 
 sub has_language {
@@ -147,6 +183,10 @@ sub has_language {
 }
 
 =head2 add_language
+
+Creates a new language file for the language passed in as an argument. Creates
+a header for that file copied over from the header in the C<canonical_language>
+language file, and saves the newly created file in the C<base_dir>.
 
 =cut
 
@@ -173,6 +213,9 @@ sub add_language {
 
 =head2 language_file
 
+Returns the L<Locale::POFileManager> object corresponding to the given
+language.
+
 =cut
 
 sub language_file {
@@ -186,6 +229,9 @@ sub language_file {
 
 =head2 canonical_language_file
 
+Returns the L<Locale::POFileManager> object corresponding to the
+C<canonical_language>.
+
 =cut
 
 sub canonical_language_file {
@@ -194,6 +240,10 @@ sub canonical_language_file {
 }
 
 =head2 find_missing
+
+Searches through all of the files in the C<base_dir>, and returns a hash
+mapping language names to an arrayref of msgids that were found in the
+C<canonical_language> file but not in the file for that language.
 
 =cut
 
@@ -210,6 +260,10 @@ sub find_missing {
 }
 
 =head2 add_stubs
+
+Adds stub msgid (and possibly msgstr, if the C<stub_msgstr> option was given)
+entries to each language file for each msgid found in the C<canonical_language>
+file but not in the language file.
 
 =cut
 

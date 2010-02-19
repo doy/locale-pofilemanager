@@ -40,9 +40,26 @@ manipulating the translation entries in it.
 
 =head2 new
 
+Accepts a hash of arguments:
+
+=over 4
+
+=item file
+
+The name of the file this represents. Required.
+
+=item stub_msgstr
+
+The msgstr to insert when adding stubs to language files. This can be either a
+literal string, or a coderef which accepts a hash containing the keys C<msgid>
+and C<lang>. Optional.
+
 =cut
 
 =head2 file
+
+Returns a L<Path::Class::File> object corresponding to the C<file> passed to
+the constructor.
 
 =cut
 
@@ -55,6 +72,8 @@ has file => (
 
 =head2 stub_msgstr
 
+Returns the C<stub_msgstr> passed to the constructor.
+
 =cut
 
 has stub_msgstr => (
@@ -64,13 +83,22 @@ has stub_msgstr => (
 
 =head2 entries
 
+Returns a list of L<Locale::PO> objects corresponding to translation entries in
+the file.
+
 =cut
 
 =head2 add_entry
 
+Adds a new translation entry to the file. This can be provided either as a
+L<Locale::PO> object directly, or as a hash of options to pass to the
+L<Locale::PO> constructor (except without the leading dashes).
+
 =cut
 
 =head2 msgids
+
+Returns a list of msgids found in the file.
 
 =cut
 
@@ -109,6 +137,8 @@ sub add_entry {
 
 =head2 entry_for
 
+Returns the L<Locale::PO> object corresponding to the given msgid.
+
 =cut
 
 sub entry_for {
@@ -118,6 +148,8 @@ sub entry_for {
 }
 
 =head2 save
+
+Writes the current contents of the file back out to disk.
 
 =cut
 
@@ -129,6 +161,8 @@ sub save {
 
 =head2 language
 
+Returns the language that this file corresponds to.
+
 =cut
 
 sub language {
@@ -139,6 +173,10 @@ sub language {
 }
 
 =head2 find_missing_from
+
+Takes another translation file (either as a filename or as a
+L<Locale::POFileManager::File> object), and returns a list of msgids that the
+given file contains that this file doesn't.
 
 =cut
 
@@ -157,6 +195,10 @@ sub find_missing_from {
 }
 
 =head2 add_stubs_from
+
+Takes another translation file (either as a filename or as a
+L<Locale::POFileManager::File> object), and adds stubs for each msgid that the
+given file contains that this file doesn't.
 
 =cut
 
