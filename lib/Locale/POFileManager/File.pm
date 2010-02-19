@@ -54,6 +54,8 @@ The msgstr to insert when adding stubs to language files. This can be either a
 literal string, or a coderef which accepts a hash containing the keys C<msgid>
 and C<lang>. Optional.
 
+=back
+
 =cut
 
 =head2 file
