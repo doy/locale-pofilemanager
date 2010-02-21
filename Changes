@@ -1,4 +1,7 @@
 Revision history for Locale::POFileManager
 
+0.02
+    Depend on File::Temp 0.19 for the newdir method
+
 0.01
     Initial release
