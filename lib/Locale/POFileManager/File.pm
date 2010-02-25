@@ -24,14 +24,14 @@ Locale::POFileManager::File - A single .po file
       canonical_language => 'en',
   );
   my $file = $manager->language_file('de');
+  my $lang = $file->language; # 'de'
 
   $file->add_entry(
       msgid  => 'Hello',
       msgstr => 'Guten Tag'
   );
-  my @entries = $file->entries;
-  my $entry = $file->entry_for('Hello');
-  $file->save;
+
+  my $translation = $file->msgstr('Hello'); # 'Guten Tag'
 
 =head1 DESCRIPTION
 
