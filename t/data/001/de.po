@@ -12,3 +12,4 @@ msgstr "bar"
 
 msgid "baz"
 msgstr "baz"
+

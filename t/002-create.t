@@ -8,6 +8,16 @@ use Path::Class;
 
 use Locale::POFileManager;
 
+sub header_is {
+    my ($got, $expected) = @_;
+    local $Test::Builder::Level = $Test::Builder::Level + 1;
+    my @got      = split /\n/, $got, -1;
+    my @expected = split /\n/, $expected, -1;
+    is_deeply([@got[0..1],      sort @got[2..$#got]],
+              [@expected[0..1], sort @expected[2..$#expected]],
+              "got the right header");
+}
+
 {
     my $dir = File::Temp->newdir;
     my $from_dir = dir('t/data/002');
@@ -15,8 +25,8 @@ use Locale::POFileManager;
     for my $file ($from_dir->children) {
         copy($file->stringify, $dir->dirname);
     }
-    my $header = $tmpdir->file('en.po')->slurp;
-    $header =~ s/\n\n.*/\n\n/s;
+    my $expected_header = $tmpdir->file('en.po')->slurp;
+    $expected_header =~ s/\n\n.*/\n\n/s;
 
     my $manager = Locale::POFileManager->new(
         base_dir           => $dir->dirname,
@@ -34,8 +44,7 @@ use Locale::POFileManager;
               "correct directory contents after creation");
 
     for my $lang (qw(ru hi)) {
-        is($tmpdir->file("$lang.po")->slurp, $header,
-           "got the right header in $lang.po");
+        header_is(scalar($tmpdir->file("$lang.po")->slurp), $expected_header);
     }
 
     $manager->language_file('ru')->add_entry(
@@ -45,7 +54,7 @@ use Locale::POFileManager;
     is_deeply([sort $manager->language_file('ru')->msgids],
               ['', qw(baz)],
               "created new entry successfully");
-    is($manager->language_file('ru')->entry_for('baz')->msgstr, '"Zab"',
+    is($manager->language_file('ru')->msgstr('baz'), 'Zab',
        "correct entry created");
 
     is_deeply([sort $manager->language_file('hi')->msgids],
@@ -61,20 +70,28 @@ use Locale::POFileManager;
     }
 
     my %langs = (
-        en => qq{msgid "foo"\nmsgstr "foo"\n\n}
-            . qq{msgid "bar"\nmsgstr "bar"\n\n}
-            . qq{msgid "baz"\nmsgstr "baz"\n\n},
-        hi => qq{msgid "foo"\n\n}
-            . qq{msgid "bar"\n\n}
-            . qq{msgid "baz"\n\n},
-        ru => qq{msgid "baz"\nmsgstr "Zab"\n\n}
-            . qq{msgid "foo"\n\n}
-            . qq{msgid "bar"\n\n},
+        en => [qq{msgid "foo"\nmsgstr "foo"\n\n}
+             . qq{msgid "bar"\nmsgstr "bar"\n\n}
+             . qq{msgid "baz"\nmsgstr "baz"\n},
+               qq{}],
+        hi => [qq{},
+               qq{msgid "foo"\n\n}
+             . qq{msgid "bar"\n\n}
+             . qq{msgid "baz"\n\n}],
+        ru => [qq{msgid "baz"\nmsgstr "Zab"\n\n},
+               qq{msgid "foo"\n\n}
+             . qq{msgid "bar"\n\n}],
     );
 
     for my $lang (keys %langs) {
-        is($manager->language_file($lang)->file->slurp, $header . $langs{$lang},
-           "files created properly");
+        my $contents = $manager->language_file($lang)->file->slurp;
+        my ($header, $data) = ($contents =~ /^(.*?\n\n)(.*)$/s);
+        header_is($header, $expected_header);
+        my $fixed = substr($data, 0, length($langs{$lang}->[0]), '');
+        is($fixed, $langs{$lang}->[0], "existing data untouched");
+        is_deeply([sort split /\n\n/, $data],
+                  [sort split /\n\n/, $langs{$lang}->[1]],
+                  "correct new msgids added");
     }
 }
 

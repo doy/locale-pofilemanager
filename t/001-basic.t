@@ -8,6 +8,16 @@ use Path::Class;
 
 use Locale::POFileManager;
 
+sub header_is {
+    my ($got, $expected) = @_;
+    local $Test::Builder::Level = $Test::Builder::Level + 1;
+    my @got      = split /\n/, $got, -1;
+    my @expected = split /\n/, $expected, -1;
+    is_deeply([@got[0..1],      sort @got[2..$#got]],
+              [@expected[0..1], sort @expected[2..$#expected]],
+              "got the right header");
+}
+
 {
     my $manager = Locale::POFileManager->new(
         base_dir           => 't/data/001',
@@ -34,7 +44,7 @@ use Locale::POFileManager;
               {ru => [], hi => [], en => [], de => []},
               "got the correct missing messages");
 
-    my $header = <<'HEADER';
+    my $expected_header = <<'HEADER';
 msgid ""
 msgstr ""
 "MIME-Version: 1.0\n"
@@ -46,7 +56,7 @@ HEADER
     my %langs = (
         en => qq{msgid "foo"\nmsgstr "foo"\n\n}
             . qq{msgid "bar"\nmsgstr "bar"\n\n}
-            . qq{msgid "baz"\nmsgstr "baz"\n\n},
+            . qq{msgid "baz"\nmsgstr "baz"\n},
         ru => qq{msgid "foo"\nmsgstr "foo"\n\n}
             . qq{msgid "bar"\n\n}
             . qq{msgid "baz"\n\n},
@@ -59,7 +69,10 @@ HEADER
     );
 
     for my $file ($manager->files) {
-        is($file->file->slurp, $header . $langs{$file->language},
+        my $contents = $file->file->slurp;
+        my ($header, $data) = ($contents =~ /^(.*?\n\n)(.*)$/s);
+        header_is($header, $expected_header);
+        is($data, $langs{$file->language},
            "got the right stubs");
     }
 }

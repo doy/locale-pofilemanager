@@ -154,9 +154,8 @@ sub stub_msgstr {
         my %args = @_;
         my $canonical_msgstr;
         $canonical_msgstr =
-            $weakself->canonical_language_file->entry_for($args{msgid})->msgstr
+            $weakself->canonical_language_file->msgstr($args{msgid})
                 if $weakself;
-        $canonical_msgstr =~ s/^"|"$//g if defined($canonical_msgstr);
         return $msgstr->(
             %args,
             defined($canonical_msgstr) ? (canonical_msgstr => $canonical_msgstr) : (),
@@ -200,13 +199,26 @@ sub add_language {
     confess("Can't overwrite existing language file for $lang")
         if -e $file->stringify;
 
+    my $canon_pofile = $self->canonical_language_file;
+
+    my $fh = $file->openw;
+    $fh->binmode(':utf8');
+    $fh->print(qq{msgid ""\n});
+    $fh->print(qq{msgstr ""\n});
+    for my $header_key ($canon_pofile->headers) {
+        $fh->print(qq{"$header_key: }
+                 . $canon_pofile->header($header_key)
+                 . qq{\\n"\n});
+    }
+    $fh->print(qq{\n});
+    $fh->close;
+
     my $msgstr = $self->stub_msgstr;
     my $pofile = Locale::POFileManager::File->new(
         file => $file,
         defined($msgstr) ? (stub_msgstr => $msgstr) : (),
     );
-    $pofile->add_entry($self->canonical_language_file->entry_for(''));
-    $pofile->save;
+
 
     $self->_add_file($pofile);
 }
