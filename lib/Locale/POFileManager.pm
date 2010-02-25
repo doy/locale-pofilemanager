@@ -25,7 +25,7 @@ Locale::POFileManager - Helpers for keeping a set of related .po files in sync
 This module contains helpers for managing a set of gettext translation files,
 including tools to keep the translation files in sync, adding new translation
 files, and manipulating the translations contained in the files. It is based on
-the L<Locale::PO> parser library.
+the L<Locale::Maketext::Lexicon> parser library.
 
 =cut
 
@@ -225,7 +225,7 @@ sub add_language {
 
 =head2 language_file
 
-Returns the L<Locale::POFileManager> object corresponding to the given
+Returns the L<Locale::POFileManager::File> object corresponding to the given
 language.
 
 =cut
@@ -241,7 +241,7 @@ sub language_file {
 
 =head2 canonical_language_file
 
-Returns the L<Locale::POFileManager> object corresponding to the
+Returns the L<Locale::POFileManager::File> object corresponding to the
 C<canonical_language>.
 
 =cut
@@ -301,9 +301,11 @@ L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Locale-POFileManager>.
 
 =head1 SEE ALSO
 
-L<Locale::PO>
+L<Locale::Maketext::Lexicon>
 
 L<Locale::Maketext>
+
+L<Locale::PO>
 
 =head1 SUPPORT
 

@@ -50,7 +50,7 @@ Accepts a hash of arguments:
 
 =item file
 
-The name of the file this represents. Required.
+The name of the file this represents. Required, and must exist.
 
 =item stub_msgstr
 
@@ -91,6 +91,14 @@ has stub_msgstr => (
 
 Returns a list of msgids found in the file.
 
+=head2 has_msgid
+
+Returns true if the given msgid is found in the file, and false otherwise.
+
+=head2 msgstr
+
+Returns the msgstr that corresponds with the given msgid.
+
 =cut
 
 has lexicon => (
@@ -109,6 +117,16 @@ has lexicon => (
         _add_lexicon_entry => 'set',
     },
 );
+
+=head2 headers
+
+Returns the list of header entries.
+
+=head2 header
+
+Returns the value of the given header entry.
+
+=cut
 
 has headers => (
     traits  => [qw(Hash)],
@@ -137,6 +155,13 @@ sub BUILD {
     # strip the headers out of the lexicon hash
     $self->headers;
 }
+
+=head2 add_entry
+
+Adds an entry to the translation file. Arguments are a hash, with valid keys
+being C<msgid> and C<msgstr>.
+
+=cut
 
 sub add_entry {
     my $self = shift;
