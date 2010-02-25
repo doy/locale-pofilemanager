@@ -8,6 +8,8 @@ my ($dir, $lang) = @ARGV;
 $dir  ||= '.';
 $lang ||= 'en';
 
+binmode STDOUT, ':utf8';
+
 my $manager = Locale::POFileManager->new(
     base_dir           => $dir,
     canonical_language => $lang,
