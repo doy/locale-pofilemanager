@@ -1,6 +1,14 @@
 #!/usr/bin/env perl
 use strict;
 use warnings;
+# PODNAME: po_find_missing
+# ABSTRACT: find missing keys from a set of po files
+
+=head1 SYNOPSIS
+
+  po_find_missing <directory> <language>
+
+=cut
 
 use Locale::POFileManager;
 

@@ -1,5 +1,6 @@
 package Locale::POFileManager::File;
 use Moose;
+# ABSTRACT: A single .po file
 
 use MooseX::Types::Path::Class qw(File);
 use List::MoreUtils qw(any);
@@ -10,10 +11,6 @@ use Scalar::Util qw(reftype);
 require Locale::Maketext::Lexicon;
 Locale::Maketext::Lexicon::set_option(decode => 1);
 Locale::Maketext::Lexicon::set_option(allow_empty => 1);
-
-=head1 NAME
-
-Locale::POFileManager::File - A single .po file
 
 =head1 SYNOPSIS
 
@@ -40,9 +37,7 @@ manipulating the translation entries in it.
 
 =cut
 
-=head1 METHODS
-
-=head2 new
+=method new
 
 Accepts a hash of arguments:
 
@@ -62,7 +57,7 @@ and C<lang>. Optional.
 
 =cut
 
-=head2 file
+=method file
 
 Returns a L<Path::Class::File> object corresponding to the C<file> passed to
 the constructor.
@@ -76,7 +71,7 @@ has file => (
     required => 1,
 );
 
-=head2 stub_msgstr
+=method stub_msgstr
 
 Returns the C<stub_msgstr> passed to the constructor.
 
@@ -87,15 +82,15 @@ has stub_msgstr => (
     isa      => 'Str|CodeRef',
 );
 
-=head2 msgids
+=method msgids
 
 Returns a list of msgids found in the file.
 
-=head2 has_msgid
+=method has_msgid
 
 Returns true if the given msgid is found in the file, and false otherwise.
 
-=head2 msgstr
+=method msgstr
 
 Returns the msgstr that corresponds with the given msgid.
 
@@ -118,11 +113,11 @@ has lexicon => (
     },
 );
 
-=head2 headers
+=method headers
 
 Returns the list of header entries.
 
-=head2 header
+=method header
 
 Returns the value of the given header entry.
 
@@ -156,7 +151,7 @@ sub BUILD {
     $self->headers;
 }
 
-=head2 add_entry
+=method add_entry
 
 Adds an entry to the translation file. Arguments are a hash, with valid keys
 being C<msgid> and C<msgstr>.
@@ -182,7 +177,7 @@ sub add_entry {
     $self->_add_lexicon_entry($msgid => $msgstr);
 }
 
-=head2 language
+=method language
 
 Returns the language that this file corresponds to.
 
@@ -195,7 +190,7 @@ sub language {
     return $language;
 }
 
-=head2 find_missing_from
+=method find_missing_from
 
 Takes another translation file (either as a filename or as a
 L<Locale::POFileManager::File> object), and returns a list of msgids that the
@@ -217,7 +212,7 @@ sub find_missing_from {
     return @ret;
 }
 
-=head2 add_stubs_from
+=method add_stubs_from
 
 Takes another translation file (either as a filename or as a
 L<Locale::POFileManager::File> object), and adds stubs for each msgid that the
@@ -244,16 +239,13 @@ sub add_stubs_from {
 __PACKAGE__->meta->make_immutable;
 no Moose;
 
-=head1 AUTHOR
+=pod
 
-  Jesse Luehrs <doy at tozt dot net>
+=begin Pod::Coverage
 
-=head1 COPYRIGHT AND LICENSE
+BUILD
 
-This software is copyright (c) 2010 by Jesse Luehrs.
-
-This is free software; you can redistribute it and/or modify it under
-the same terms as perl itself.
+=end Pod::Coverage
 
 =cut
 
