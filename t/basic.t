@@ -20,7 +20,7 @@ sub header_is {
 
 {
     my $manager = Locale::POFileManager->new(
-        base_dir           => 't/data/001',
+        base_dir           => 't/data/basic',
         canonical_language => 'en',
     );
 
@@ -31,7 +31,7 @@ sub header_is {
 
 {
     my $dir = File::Temp->newdir;
-    my $from_dir = dir('t/data/001');
+    my $from_dir = dir('t/data/basic');
     for my $file ($from_dir->children) {
         copy($file->stringify, $dir->dirname);
     }

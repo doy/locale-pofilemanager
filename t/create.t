@@ -20,7 +20,7 @@ sub header_is {
 
 {
     my $dir = File::Temp->newdir;
-    my $from_dir = dir('t/data/002');
+    my $from_dir = dir('t/data/create');
     my $tmpdir = dir($dir->dirname);
     for my $file ($from_dir->children) {
         copy($file->stringify, $dir->dirname);

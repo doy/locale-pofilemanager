@@ -11,7 +11,7 @@ use Locale::POFileManager;
 
 {
     my $dir = File::Temp->newdir;
-    my $from_dir = dir('t/data/004');
+    my $from_dir = dir('t/data/utf8');
     my $tmpdir = dir($dir->dirname);
     for my $file ($from_dir->children) {
         copy($file->stringify, $dir->dirname);
