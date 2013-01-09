@@ -1,6 +1,7 @@
 Revision history for Locale::POFileManager
 
 {{$NEXT}}
+    Fix for changes in blead (hash randomization)
 
 0.04  2011-10-09
     Doc cleanups
