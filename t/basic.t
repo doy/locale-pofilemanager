@@ -24,7 +24,9 @@ sub header_is {
         canonical_language => 'en',
     );
 
-    is_deeply({$manager->find_missing},
+    my %missing = $manager->find_missing;
+    %missing = map { $_ => [ sort @{ $missing{$_} } ] } keys %missing;
+    is_deeply(\%missing,
               {ru => [qw(bar baz)], hi => [qw(bar)], en => [], de => []},
               "got the correct missing messages");
 }
@@ -54,26 +56,68 @@ msgstr ""
 HEADER
 
     my %langs = (
-        en => qq{msgid "foo"\nmsgstr "foo"\n\n}
-            . qq{msgid "bar"\nmsgstr "bar"\n\n}
-            . qq{msgid "baz"\nmsgstr "baz"\n},
-        ru => qq{msgid "foo"\nmsgstr "foo"\n\n}
-            . qq{msgid "bar"\n\n}
-            . qq{msgid "baz"\n\n},
-        hi => qq{msgid "foo"\nmsgstr "foo"\n\n}
-            . qq{msgid "baz"\nmsgstr "baz"\n\n}
-            . qq{msgid "bar"\n\n},
-        de => qq{msgid "foo"\nmsgstr "foo"\n\n}
-            . qq{msgid "bar"\nmsgstr "bar"\n\n}
-            . qq{msgid "baz"\nmsgstr "baz"\n\n},
+        en => qr{
+            \A
+            msgid\ "foo"\n
+            msgstr\ "foo"\n
+            \n
+            msgid\ "bar"\n
+            msgstr\ "bar"\n
+            \n
+            msgid\ "baz"\n
+            msgstr\ "baz"\n
+            \z
+        }x,
+        ru => qr{
+            \A
+            msgid\ "foo"\n
+            msgstr\ "foo"\n
+            \n
+            (?:
+                msgid\ "bar"\n
+                \n
+                msgid\ "baz"\n
+            |
+                msgid\ "baz"\n
+                \n
+                msgid\ "bar"\n
+            )
+            \n
+            \z
+        }x,
+        hi => qr{
+            \A
+            msgid\ "foo"\n
+            msgstr\ "foo"\n
+            \n
+            msgid\ "baz"\n
+            msgstr\ "baz"\n
+            \n
+            msgid\ "bar"\n
+            \n
+            \z
+        }x,
+        de => qr{
+            \A
+            msgid\ "foo"\n
+            msgstr\ "foo"\n
+            \n
+            msgid\ "bar"\n
+            msgstr\ "bar"\n
+            \n
+            msgid\ "baz"\n
+            msgstr\ "baz"\n
+            \n
+            \z
+        }x,
     );
 
     for my $file ($manager->files) {
         my $contents = $file->file->slurp;
         my ($header, $data) = ($contents =~ /^(.*?\n\n)(.*)$/s);
         header_is($header, $expected_header);
-        is($data, $langs{$file->language},
-           "got the right stubs");
+        like($data, $langs{$file->language},
+           "got the right stubs for " . $file->language);
     }
 }
 
