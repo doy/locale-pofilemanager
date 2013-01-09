@@ -1,5 +1,5 @@
 package Locale::POFileManager;
-use Moose;
+use Moose 0.90;
 use MooseX::Types::Path::Class qw(Dir);
 use Scalar::Util qw(reftype weaken);
 # ABSTRACT: Helpers for keeping a set of related .po files in sync

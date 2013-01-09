@@ -2,7 +2,7 @@
 use strict;
 use warnings;
 use Test::More;
-use File::Temp;
+use File::Temp 0.19;
 use File::Copy;
 use Path::Class;
 

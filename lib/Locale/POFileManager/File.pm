@@ -1,5 +1,5 @@
 package Locale::POFileManager::File;
-use Moose;
+use Moose 0.90;
 # ABSTRACT: A single .po file
 
 use MooseX::Types::Path::Class qw(File);
